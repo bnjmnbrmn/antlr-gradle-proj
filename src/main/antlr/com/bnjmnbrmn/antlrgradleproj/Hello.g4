@@ -1,13 +1,18 @@
 grammar Hello;
 
-r: helloMessage | farewellMessage ;
+// Main rule: 'r' can be either a hello message or a farewell message
+r : helloMessage
+  | farewellMessage
+  ;
 
-helloMessage: HELLO ID;
+// Rule for a hello message
+helloMessage : HELLO ID ;      // <--- CHANGE THIS FROM 'hello' to HELLO
 
-farewellMessage: GOODBYE ID;
+// Rule for a farewell message
+farewellMessage : GOODBYE ID ; // <--- CHANGE THIS FROM 'goodbye' to GOODBYE
 
-
-ID : [a-z]+ ;
-HELLO : 'hello';
-GOODBYE : 'goodbye';
-WS : [ \t\r\n ]+ -> skip;
+// Lexer rules:
+HELLO   : 'hello' ;
+GOODBYE : 'goodbye' ;
+ID      : [a-z]+ ;
+WS      : [ \t\r\n]+ -> skip ;

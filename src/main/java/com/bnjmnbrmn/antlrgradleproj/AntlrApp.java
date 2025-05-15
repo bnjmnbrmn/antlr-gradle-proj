@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.bnjmnbrmn.antlrgradleproj.HelloLexer;
 import com.bnjmnbrmn.antlrgradleproj.HelloParser;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 
 public class AntlrApp {
@@ -35,6 +36,13 @@ public class AntlrApp {
         String result = visitor.visit(tree); // This line invokes the visitor traversal!
         System.out.println("Visitor Result: '" + result + "'");
         // ---------------------------------------------
+
+        // --- Using the Listener ---
+        System.out.println("\n--- Listener Output ---");
+        ParseTreeWalker walker = new ParseTreeWalker(); // Create a walker
+        MyHelloListener listener = new MyHelloListener(); // Create your listener instance
+        walker.walk(listener, tree); // Tell the walker to walk the tree using your listener
+
 
         if (parser.getNumberOfSyntaxErrors() > 0) {
             System.err.println("Parsing finished with errors.");
