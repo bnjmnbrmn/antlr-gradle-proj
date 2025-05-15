@@ -1,33 +1,47 @@
 package com.bnjmnbrmn.antlrgradleproj;
 
-public class MyHelloVisitor extends HelloBaseVisitor<String> {
+import com.bnjmnbrmn.antlrgradleproj.ast.FarewellMessage;
+import com.bnjmnbrmn.antlrgradleproj.ast.HelloMessage;
+import com.bnjmnbrmn.antlrgradleproj.ast.Message;
+
+public class MyHelloVisitor extends HelloBaseVisitor<Message> {
 
     @Override
-    public String visitR(HelloParser.RContext ctx) {
-        // It's important that visit() is called on the child here
-        // If ctx has no children (e.g., if parsing failed completely),
-        // this might throw an error or return null.
+    public Message visitR(HelloParser.RContext ctx) {
         if (ctx.getChildCount() > 0) {
+            // The 'r' rule delegates to its children (helloMessage or farewellMessage)
+            // We visit the child and return the Message object it produces.
             return visit(ctx.getChild(0));
         }
-        return "ERROR: No valid message found in 'r' rule."; // Fallback
+        // If parsing failed or no valid message, return null or throw an error
+        System.err.println("Visitor Error: No valid message found for 'r' rule in parse tree.");
+        return null;
     }
 
     @Override
-    public String visitHelloMessage(HelloParser.HelloMessageContext ctx) {
-        String helloText = ctx.HELLO().getText();
+    public Message visitHelloMessage(HelloParser.HelloMessageContext ctx) {
+        // Get the text of the ID token
         String idText = ctx.ID().getText();
 
-        System.out.println("MyHelloVisitor: Detected a HELLO message!"); // <--- This line should print
-        return "MESSAGE: " + helloText + " " + idText;
+        // Create and return an instance of our AST HelloMessage
+        System.out.println("MyHelloVisitor: Building HelloMessage AST node for ID: " + idText);
+        return new HelloMessage(idText);
     }
 
     @Override
-    public String visitFarewellMessage(HelloParser.FarewellMessageContext ctx) {
-        String goodbyeText = ctx.GOODBYE().getText();
+    public Message visitFarewellMessage(HelloParser.FarewellMessageContext ctx) {
+        // Get the text of the ID token
         String idText = ctx.ID().getText();
 
-        System.out.println("MyHelloVisitor: Detected a GOODBYE message!"); // <--- This line should print
-        return "FAREWELL: " + goodbyeText + " " + idText + "!";
+        // Create and return an instance of our AST FarewellMessage
+        System.out.println("MyHelloVisitor: Building FarewellMessage AST node for ID: " + idText);
+        return new FarewellMessage(idText);
+    }
+
+    // You might want to override visitErrorNode to handle errors in the parse tree itself
+    @Override
+    public Message visitErrorNode(org.antlr.v4.runtime.tree.ErrorNode node) {
+        System.err.println("MyHelloVisitor: Encountered an error node in the parse tree: " + node.getText());
+        return null; // Or return a specific error AST node
     }
 }

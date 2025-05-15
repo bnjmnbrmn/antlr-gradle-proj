@@ -1,8 +1,10 @@
 package com.bnjmnbrmn.antlrgradleproj;
 
+import com.bnjmnbrmn.antlrgradleproj.ast.Message;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ConsoleErrorListener;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import com.bnjmnbrmn.antlrgradleproj.HelloLexer;
@@ -27,22 +29,25 @@ public class AntlrApp {
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         HelloParser parser = new HelloParser(tokens);
 
+        parser.removeErrorListeners();
+        parser.addErrorListener(new ConsoleErrorListener());
+
         ParseTree tree = parser.r(); // Invoke the start rule 'r'
 
         System.out.println("Raw Parse Tree: " + tree.toStringTree(parser));
 
-        // <--- Crucial lines for invoking the visitor ---
+        // --- Using the Visitor to build AST ---
+        System.out.println("\n--- Visitor (AST) Output ---");
         MyHelloVisitor visitor = new MyHelloVisitor();
-        String result = visitor.visit(tree); // This line invokes the visitor traversal!
-        System.out.println("Visitor Result: '" + result + "'");
-        // ---------------------------------------------
+        // The visitor now returns a 'Message' object (our AST node)
+        Message ast = visitor.visit(tree); // <--- Changed type to Message
 
-        // --- Using the Listener ---
-        System.out.println("\n--- Listener Output ---");
-        ParseTreeWalker walker = new ParseTreeWalker(); // Create a walker
-        MyHelloListener listener = new MyHelloListener(); // Create your listener instance
-        walker.walk(listener, tree); // Tell the walker to walk the tree using your listener
-
+        // Check if an AST was successfully built before printing
+        if (ast != null) {
+            System.out.println("Generated AST: " + ast.toString()); // <--- Print the AST object
+        } else {
+            System.out.println("Generated AST: null (Parsing failed or no valid message)");
+        }
 
         if (parser.getNumberOfSyntaxErrors() > 0) {
             System.err.println("Parsing finished with errors.");
