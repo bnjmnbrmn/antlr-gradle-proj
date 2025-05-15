@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'antlr'
+    id 'application'
+}
+
+group 'com.bnjmnbrmn.antlrgradleproj'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    antlr 'org.antlr:antlr4:4.13.1' // Make sure to use a stable ANTLR version
+
+    implementation 'org.antlr:antlr4-runtime:4.13.1' // IMPORTANT: This version MUST match the 'antlr' tool version above.
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+generateGrammarSource {
+//    outputDirectory =
+//            file("${project.layout.buildDirectory}/generated-src/antlr/" +
+//                    "com/bnjmnbrmn/antlrgradleproj")
+
+    arguments += ["-visitor", "-long-messages"]
+    arguments += ["-package", "com.bnjmnbrmn.antlrgradleproj"]
+}
+
+application {
+    mainClass = "com.bnjmnbrmn.antlrgradleproj.AntlrApp"
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += file("${buildDir}/generated-src/antlr/main")
+        }
+    }
+    test {
+        java {
+            srcDirs += file("${buildDir}/generated-src/antlr/test")
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
